@@ -38,7 +38,7 @@ export const errorHandler = (
 
   // Error de PostgreSQL
   if ('code' in err && typeof err.code === 'string') {
-    return handleDatabaseError(err, res);
+    return handleDatabaseError(err as Error & { code: string; detail?: string }, res);
   }
 
   // Error desconocido (500)
@@ -52,8 +52,8 @@ export const errorHandler = (
 /**
  * Manejo específico de errores de PostgreSQL
  */
-const handleDatabaseError = (err: Error & { code?: string; detail?: string }, res: Response): Response => {
-  const pgError = err as { code: string; detail?: string };
+const handleDatabaseError = (err: Error & { code: string; detail?: string }, res: Response): Response => {
+  const pgError = err;
 
   switch (pgError.code) {
     case '23505': // unique_violation

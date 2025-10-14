@@ -4,7 +4,18 @@
  * Define la estructura y tipos de datos para la entidad User
  */
 
-import { UserRole } from '../types';
+/**
+ * Interface de Rol
+ */
+export interface Role {
+  id: string;
+  name: string;
+  display_name: string;
+  description: string | null;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
 
 /**
  * Interface base de Usuario (campos de BD)
@@ -16,10 +27,17 @@ export interface User {
   first_name: string;
   last_name: string;
   phone: string | null;
-  role: UserRole;
+  role_id: string;
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
+}
+
+/**
+ * Usuario con información de rol (para queries con JOIN)
+ */
+export interface UserWithRole extends Omit<User, 'password_hash'> {
+  role: Role;
 }
 
 /**
@@ -31,7 +49,7 @@ export interface UserSafe {
   first_name: string;
   last_name: string;
   phone: string | null;
-  role: UserRole;
+  role_id: string;
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
@@ -46,7 +64,7 @@ export interface CreateUserDto {
   first_name: string;
   last_name: string;
   phone?: string;
-  role?: UserRole;
+  role_id?: string; // Por defecto se asignará 'customer'
 }
 
 /**

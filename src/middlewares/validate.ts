@@ -14,7 +14,7 @@ import { ValidationError } from '../utils/errors';
  * Middleware que ejecuta validaciones y retorna errores
  */
 export const validate = (validations: ValidationChain[]) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     // Ejecutar todas las validaciones
     await Promise.all(validations.map((validation) => validation.run(req)));
 

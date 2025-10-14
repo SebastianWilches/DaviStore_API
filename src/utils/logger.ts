@@ -26,12 +26,15 @@ class Logger {
   private log(level: LogLevel, message: string, meta?: unknown): void {
     const timestamp = new Date().toISOString();
 
-    const logObject = {
+    const logObject: { timestamp: string; level: LogLevel; message: string; meta?: unknown } = {
       timestamp,
       level,
       message,
-      ...(meta && { meta }),
     };
+
+    if (meta !== undefined) {
+      logObject.meta = meta;
+    }
 
     // En desarrollo: output formateado
     // En producción: JSON para herramientas de logging

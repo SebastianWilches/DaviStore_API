@@ -2,8 +2,11 @@
 
 ## Diagrama Visual (Mermaid)
 
+**Nota:** El sistema usa tabla `roles` en lugar de ENUM para máxima escalabilidad.
+
 ```mermaid
 erDiagram
+    ROLES ||--o{ USERS : "asignado a"
     USERS ||--o{ ORDERS : "realiza"
     USERS ||--|| CARTS : "tiene"
     
@@ -18,6 +21,16 @@ erDiagram
     ORDERS ||--o{ ORDER_ITEMS : "contiene"
     ORDERS ||--|| PAYMENTS : "tiene"
     
+    ROLES {
+        uuid id PK
+        varchar name UK
+        varchar display_name
+        text description
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+    
     USERS {
         uuid id PK
         varchar email UK
@@ -25,7 +38,7 @@ erDiagram
         varchar first_name
         varchar last_name
         varchar phone
-        enum role
+        uuid role_id FK
         boolean is_active
         timestamp created_at
         timestamp updated_at
@@ -115,6 +128,16 @@ erDiagram
 ```
 
 ## Cardinalidades Detalladas
+
+### 0️⃣ ROLES - USERS
+- **Relación**: 1:N (Un rol puede tener múltiples usuarios)
+- **Justificación**: Escalabilidad - agregar roles sin modificar schema
+- **FK**: `users.role_id → roles.id`
+- **On Delete**: `RESTRICT` (no se puede eliminar rol con usuarios asignados)
+- **Ventajas**: 
+  - Roles dinámicos sin ALTER TYPE
+  - Metadatos adicionales (display_name, description)
+  - Fácil agregar nuevos roles desde admin UI
 
 ### 1️⃣ USERS - CARTS
 - **Relación**: 1:1 (Un usuario tiene UN carrito activo)

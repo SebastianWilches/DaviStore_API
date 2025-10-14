@@ -7,9 +7,10 @@
  */
 
 /**
- * Roles de usuario
+ * Nombres de roles (para type safety en queries)
+ * Nota: Los roles están en tabla 'roles', no en ENUM
  */
-export enum UserRole {
+export enum RoleName {
   CUSTOMER = 'customer',
   ADMIN = 'admin',
 }
