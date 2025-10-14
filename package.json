@@ -12,7 +12,12 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "db:migrate": "node -r ts-node/register src/database/migrations/run-migrations.ts"
+    "db:reset": "powershell -ExecutionPolicy Bypass -File src/database/scripts/reset-and-migrate.ps1",
+    "db:migrate": "powershell -ExecutionPolicy Bypass -File src/database/scripts/migrate.ps1",
+    "db:migrate:file": "powershell -ExecutionPolicy Bypass -File src/database/scripts/migrate.ps1 -MigrationFile",
+    "db:find-psql": "powershell -ExecutionPolicy Bypass -File src/database/scripts/find-psql.ps1",
+    "db:backup": "bash src/database/scripts/backup.sh",
+    "db:restore": "bash src/database/scripts/restore.sh"
   },
   "keywords": [
     "ecommerce",
