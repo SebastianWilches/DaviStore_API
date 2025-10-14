@@ -4,7 +4,41 @@
 
 ### 🎯 Entidades Principales
 
-#### 1. **USERS** (Usuarios)
+#### 1. **ROLES** (Roles del Sistema)
+Roles escalables sin necesidad de ALTER TYPE.
+
+```sql
+roles
+├── id (UUID, PK)
+├── name (VARCHAR, UNIQUE, NOT NULL)
+├── display_name (VARCHAR, NOT NULL)
+├── description (TEXT, NULLABLE)
+├── is_active (BOOLEAN, DEFAULT: true)
+├── created_at (TIMESTAMP)
+└── updated_at (TIMESTAMP)
+```
+
+**Justificación:**
+- **Tabla vs ENUM**: Máxima escalabilidad sin migraciones complejas
+- **name**: Identificador interno inmutable (snake_case: 'customer', 'admin')
+- **display_name**: Nombre visible para usuarios ('Cliente', 'Administrador')
+- **description**: Documentación del rol y sus responsabilidades
+- **Extensible**: Fácil agregar campos como permisos, color, icono
+- **Sin ALTER TYPE**: Agregar roles es un simple INSERT
+- **Metadatos ricos**: Permite UI de administración de roles
+
+**Roles Iniciales:**
+- `customer` → Cliente que realiza compras
+- `admin` → Administrador del sistema
+
+**Roles Futuros (extensibles con simple INSERT):**
+- `moderator` → Moderador de contenido y órdenes
+- `vendor` → Vendedor que gestiona productos
+- Cualquier otro rol necesario...
+
+---
+
+#### 2. **USERS** (Usuarios)
 Almacena la información de usuarios del sistema (clientes y administradores).
 
 ```sql
@@ -15,7 +49,7 @@ users
 ├── first_name (VARCHAR, NOT NULL)
 ├── last_name (VARCHAR, NOT NULL)
 ├── phone (VARCHAR, NULLABLE)
-├── role (ENUM: 'customer', 'admin', DEFAULT: 'customer')
+├── role_id (UUID, FK -> roles.id, NOT NULL)
 ├── is_active (BOOLEAN, DEFAULT: true)
 ├── created_at (TIMESTAMP)
 └── updated_at (TIMESTAMP)
@@ -24,13 +58,14 @@ users
 **Justificación:**
 - **UUID como PK**: Evita exposición de información sensible y escala mejor
 - **password_hash**: Nunca almacenamos contraseñas en texto plano (Clean Code - Seguridad)
-- **role**: Implementa el principio de segregación de responsabilidades (SOLID - SRP)
+- **role_id FK**: Relación a tabla roles (escalabilidad sin ALTER TYPE)
 - **is_active**: Soft delete pattern, preserva integridad referencial
 - **Timestamps**: Auditoría y trazabilidad
+- **ON DELETE RESTRICT**: No se puede eliminar rol con usuarios asignados
 
 ---
 
-#### 2. **CATEGORIES** (Categorías)
+#### 3. **CATEGORIES** (Categorías)
 Organiza productos en categorías jerárquicas.
 
 ```sql
@@ -52,7 +87,7 @@ categories
 
 ---
 
-#### 3. **PRODUCTS** (Productos)
+#### 4. **PRODUCTS** (Productos)
 Catálogo de productos disponibles.
 
 ```sql
@@ -79,7 +114,7 @@ products
 
 ---
 
-#### 4. **CARTS** (Carritos de Compra)
+#### 5. **CARTS** (Carritos de Compra)
 Carritos temporales de usuarios.
 
 ```sql
@@ -98,7 +133,7 @@ carts
 
 ---
 
-#### 5. **CART_ITEMS** (Items del Carrito)
+#### 6. **CART_ITEMS** (Items del Carrito)
 Productos agregados al carrito.
 
 ```sql
@@ -121,7 +156,7 @@ cart_items
 
 ---
 
-#### 6. **ORDERS** (Órdenes/Pedidos)
+#### 7. **ORDERS** (Órdenes/Pedidos)
 Pedidos confirmados por usuarios.
 
 ```sql
@@ -147,7 +182,7 @@ orders
 
 ---
 
-#### 7. **ORDER_ITEMS** (Items de Orden)
+#### 8. **ORDER_ITEMS** (Items de Orden)
 Productos de cada orden (histórico inmutable).
 
 ```sql
@@ -172,7 +207,7 @@ order_items
 
 ---
 
-#### 8. **PAYMENTS** (Pagos)
+#### 9. **PAYMENTS** (Pagos)
 Registro de transacciones de pago.
 
 ```sql

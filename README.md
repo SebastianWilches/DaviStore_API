@@ -111,16 +111,37 @@ El proyecto sigue una **arquitectura en capas** basada en principios SOLID:
 
 Ver [DATABASE_DESIGN.md](./DATABASE_DESIGN.md) para el diseño detallado del modelo de datos.
 
-### Entidades Principales
+### Entidades Principales (9 Tablas)
 
-- **Users**: Usuarios del sistema
-- **Categories**: Categorías de productos
+- **Roles**: Sistema de roles escalable (en tabla, no ENUM)
+- **Users**: Usuarios del sistema (con `role_id`)
+- **Categories**: Categorías de productos (jerárquicas)
 - **Products**: Catálogo de productos
-- **Carts**: Carritos de compra
-- **Cart Items**: Items del carrito
-- **Orders**: Órdenes confirmadas
-- **Order Items**: Items de órdenes
-- **Payments**: Registro de pagos
+- **Carts**: Carritos de compra (usuarios autenticados)
+- **Cart Items**: Items del carrito (con snapshot de precio)
+- **Orders**: Órdenes confirmadas (histórico inmutable)
+- **Order Items**: Items de órdenes (con snapshots)
+- **Payments**: Registro de pagos (trazabilidad completa)
+
+### 🎯 Sistema de Roles
+
+**Diseño Escalable:** Tabla `roles` en lugar de ENUM
+
+```sql
+-- 2 roles iniciales
+roles: customer, admin
+
+-- Fácil agregar más roles cuando sea necesario
+INSERT INTO roles (name, display_name, description) VALUES
+('moderator', 'Moderador', 'Modera contenido y órdenes'),
+('vendor', 'Vendedor', 'Gestiona sus propios productos');
+```
+
+**Ventajas:**
+- ✅ Sin ALTER TYPE (agregar roles = INSERT)
+- ✅ Metadatos ricos (display_name, description)
+- ✅ Extensible (agregar columnas fácilmente)
+- ✅ UI de admin (gestionar roles desde interfaz)
 
 ## 📚 API Endpoints
 
@@ -190,6 +211,18 @@ npm start
 ## 📝 Variables de Entorno
 
 Ver [.env.example](./.env.example) para todas las variables disponibles.
+
+---
+
+## 📚 Documentación Adicional
+
+- 📊 [DATABASE_ER_DIAGRAM.md](./DATABASE_ER_DIAGRAM.md) - Diagrama ER visual
+- 🎯 [BEST_PRACTICES.md](./BEST_PRACTICES.md) - Principios SOLID, DRY, Clean Code
+- 🚀 [DEPLOYMENT.md](./DEPLOYMENT.md) - Guía de deployment
+- 🛒 [CART_STRATEGIES.md](./CART_STRATEGIES.md) - Estrategias de carrito
+- 👥 [ROLES_DESIGN.md](./ROLES_DESIGN.md) - Diseño de roles
+- 🔄 [MIGRACIONES.md](./MIGRACIONES.md) - Guía de migraciones
+- 📝 [CHANGELOG.md](./CHANGELOG.md) - Historial de cambios
 
 ## 🤝 Contribución
 

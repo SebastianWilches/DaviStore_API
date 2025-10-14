@@ -30,6 +30,7 @@ DROP TABLE IF EXISTS carts CASCADE;
 DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS categories CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS roles CASCADE;
 
 -- =====================================================
 -- ELIMINAR VISTAS

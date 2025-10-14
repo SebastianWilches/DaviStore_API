@@ -1,9 +1,10 @@
 /**
  * Barrel export para todos los modelos
  * 
- * Facilita imports: import { User, Product } from '../models'
+ * Facilita imports: import { User, Product, Role } from '../models'
  */
 
+export * from './Role';
 export * from './User';
 export * from './Product';
 

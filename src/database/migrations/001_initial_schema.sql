@@ -10,9 +10,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- TIPOS ENUM
 -- =====================================================
 
--- Roles de usuario
-CREATE TYPE user_role AS ENUM ('customer', 'admin');
-
 -- Estados del carrito
 CREATE TYPE cart_status AS ENUM ('active', 'completed', 'abandoned');
 
@@ -26,6 +23,33 @@ CREATE TYPE payment_method AS ENUM ('credit_card', 'debit_card', 'paypal', 'tran
 CREATE TYPE payment_status AS ENUM ('pending', 'approved', 'rejected', 'refunded');
 
 -- =====================================================
+-- TABLA: roles
+-- Roles del sistema con información adicional
+-- =====================================================
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(50) UNIQUE NOT NULL,
+    display_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT true NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    
+    -- Constraints
+    CONSTRAINT role_name_format_check CHECK (name ~* '^[a-z_]+$')
+);
+
+-- Índices
+CREATE INDEX idx_roles_name ON roles(name);
+CREATE INDEX idx_roles_active ON roles(is_active);
+
+-- Comentarios
+COMMENT ON TABLE roles IS 'Roles del sistema (escalable sin necesidad de ALTER TYPE)';
+COMMENT ON COLUMN roles.name IS 'Identificador interno del rol (snake_case, inmutable)';
+COMMENT ON COLUMN roles.display_name IS 'Nombre visible para usuarios';
+COMMENT ON COLUMN roles.description IS 'Descripción del rol y sus responsabilidades';
+
+-- =====================================================
 -- TABLA: users
 -- Almacena información de usuarios del sistema
 -- =====================================================
@@ -36,10 +60,14 @@ CREATE TABLE users (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
-    role user_role DEFAULT 'customer' NOT NULL,
+    role_id UUID NOT NULL,
     is_active BOOLEAN DEFAULT true NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    
+    -- Foreign Keys
+    CONSTRAINT fk_user_role FOREIGN KEY (role_id) 
+        REFERENCES roles(id) ON DELETE RESTRICT,
     
     -- Constraints
     CONSTRAINT email_format_check CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
@@ -47,12 +75,13 @@ CREATE TABLE users (
 
 -- Índices para optimizar búsquedas
 CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_role ON users(role_id);
 CREATE INDEX idx_users_active ON users(is_active);
 
 -- Comentarios para documentación
 COMMENT ON TABLE users IS 'Almacena información de usuarios del sistema (clientes y administradores)';
 COMMENT ON COLUMN users.password_hash IS 'Hash bcrypt de la contraseña (nunca se almacena en texto plano)';
+COMMENT ON COLUMN users.role_id IS 'Rol del usuario (FK a tabla roles para escalabilidad)';
 COMMENT ON COLUMN users.is_active IS 'Soft delete: false para desactivar usuario sin eliminar datos';
 
 -- =====================================================
@@ -305,6 +334,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Triggers para updated_at en todas las tablas
+CREATE TRIGGER update_roles_updated_at BEFORE UPDATE ON roles
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -358,17 +390,22 @@ COMMENT ON FUNCTION generate_order_number() IS 'Genera número de orden único: 
 -- DATOS INICIALES (SEEDS)
 -- =====================================================
 
+-- Roles iniciales del sistema
+INSERT INTO roles (name, display_name, description) VALUES
+    ('customer', 'Cliente', 'Usuario regular que puede realizar compras en la tienda'),
+    ('admin', 'Administrador', 'Usuario con acceso completo al sistema para gestión');
+
 -- Usuario administrador por defecto
 -- Contraseña: Admin123! (debe cambiarse en producción)
-INSERT INTO users (email, password_hash, first_name, last_name, role, is_active)
-VALUES (
+INSERT INTO users (email, password_hash, first_name, last_name, role_id, is_active)
+SELECT 
     'admin@davistore.com',
     '$2a$10$rZH3JhZ.MhQyKGZvqX4Fc.LLqj3XxWxH2k6PZK9B7p5ILJEpKHLuC', -- Hash de 'Admin123!'
     'Admin',
     'DaviStore',
-    'admin',
+    id,
     true
-);
+FROM roles WHERE name = 'admin';
 
 -- Categorías iniciales
 INSERT INTO categories (name, description, slug, parent_id, is_active) VALUES
@@ -442,7 +479,7 @@ SELECT
 FROM products p
 INNER JOIN categories c ON p.category_id = c.id;
 
--- Vista: Órdenes con información de usuario
+-- Vista: Órdenes con información de usuario y rol
 CREATE OR REPLACE VIEW v_orders_with_user AS
 SELECT 
     o.id,
@@ -451,6 +488,8 @@ SELECT
     u.email AS user_email,
     u.first_name,
     u.last_name,
+    r.name AS user_role,
+    r.display_name AS user_role_display,
     o.total_amount,
     o.status,
     o.shipping_address,
@@ -460,7 +499,26 @@ SELECT
     o.created_at,
     o.updated_at
 FROM orders o
-INNER JOIN users u ON o.user_id = u.id;
+INNER JOIN users u ON o.user_id = u.id
+INNER JOIN roles r ON u.role_id = r.id;
+
+-- Vista: Usuarios con información de rol
+CREATE OR REPLACE VIEW v_users_with_role AS
+SELECT 
+    u.id,
+    u.email,
+    u.first_name,
+    u.last_name,
+    u.phone,
+    u.is_active,
+    r.id AS role_id,
+    r.name AS role_name,
+    r.display_name AS role_display_name,
+    r.description AS role_description,
+    u.created_at,
+    u.updated_at
+FROM users u
+INNER JOIN roles r ON u.role_id = r.id;
 
 -- =====================================================
 -- VERIFICACIÓN DE INTEGRIDAD
@@ -474,6 +532,30 @@ SELECT
 FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY tablename;
+
+-- Verificar roles creados
+SELECT 
+    name,
+    display_name,
+    description
+FROM roles
+ORDER BY 
+    CASE name
+        WHEN 'admin' THEN 1
+        WHEN 'customer' THEN 2
+        ELSE 3
+    END;
+
+-- Verificar usuario admin
+SELECT 
+    u.email,
+    u.first_name,
+    u.last_name,
+    r.name AS role,
+    r.display_name AS role_display
+FROM users u
+INNER JOIN roles r ON u.role_id = r.id
+WHERE u.email = 'admin@davistore.com';
 
 -- Script completado exitosamente
 SELECT 'Database schema created successfully!' AS message;
