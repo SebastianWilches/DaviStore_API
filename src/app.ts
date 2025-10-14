@@ -60,7 +60,7 @@ export const createApp = (): Application => {
   // Health check
   // ============================================
 
-  app.get('/health', (req, res) => {
+  app.get('/health', (_req, res) => {
     res.json({
       status: 'ok',
       timestamp: new Date().toISOString(),
@@ -77,7 +77,7 @@ export const createApp = (): Application => {
   // app.use(`/api/${config.apiVersion}/products`, productRoutes);
   // etc...
 
-  app.get(`/api/${config.apiVersion}`, (req, res) => {
+  app.get(`/api/${config.apiVersion}`, (_req, res) => {
     res.json({
       message: 'DaviStore API',
       version: config.apiVersion,

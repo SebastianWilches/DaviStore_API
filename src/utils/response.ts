@@ -37,13 +37,21 @@ export const errorResponse = (
   code?: string,
   details?: unknown
 ): Response => {
+  const errorObj: { message: string; code?: string; details?: unknown } = {
+    message,
+  };
+
+  if (code) {
+    errorObj.code = code;
+  }
+
+  if (details !== undefined) {
+    errorObj.details = details;
+  }
+
   const response: ApiResponse = {
     success: false,
-    error: {
-      message,
-      ...(code && { code }),
-      ...(details && { details }),
-    },
+    error: errorObj,
   };
 
   return res.status(statusCode).json(response);
