@@ -75,7 +75,7 @@ const parseArray = (value: string): string[] => {
 /**
  * Configuración exportada
  */
-export const config: EnvConfig = {
+const envConfig: EnvConfig = {
   // Server Configuration
   nodeEnv: (process.env.NODE_ENV || 'development') as 'development' | 'production' | 'test',
   port: parseInt(getEnv('PORT', '3000'), 10),
@@ -94,9 +94,9 @@ export const config: EnvConfig = {
   // JWT Configuration
   jwt: {
     secret: getEnv('JWT_SECRET'),
-    expiresIn: getEnv('JWT_EXPIRES_IN', '7d'),
+    expiresIn: getEnv('JWT_EXPIRES_IN', '15m'),
     refreshSecret: getEnv('JWT_REFRESH_SECRET'),
-    refreshExpiresIn: getEnv('JWT_REFRESH_EXPIRES_IN', '30d'),
+    refreshExpiresIn: getEnv('JWT_REFRESH_EXPIRES_IN', '7d'),
   },
 
   // Security Configuration
@@ -112,6 +112,18 @@ export const config: EnvConfig = {
     windowMs: parseInt(getEnv('RATE_LIMIT_WINDOW_MS', '900000'), 10), // 15 minutos
     maxRequests: parseInt(getEnv('RATE_LIMIT_MAX_REQUESTS', '100'), 10),
   },
+};
+
+/**
+ * Configuración con accesos directos para compatibilidad
+ */
+export const config = {
+  ...envConfig,
+  // Accesos directos para JWT
+  jwtSecret: envConfig.jwt.secret,
+  jwtExpiresIn: envConfig.jwt.expiresIn,
+  jwtRefreshSecret: envConfig.jwt.refreshSecret,
+  jwtRefreshExpiresIn: envConfig.jwt.refreshExpiresIn,
 };
 
 /**

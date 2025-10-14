@@ -14,6 +14,8 @@ import morgan from 'morgan';
 import compression from 'compression';
 import { config } from './config/env';
 import { errorHandler, notFoundHandler } from './middlewares';
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
 
 /**
  * Crear y configurar aplicación Express
@@ -72,18 +74,24 @@ export const createApp = (): Application => {
   // API Routes
   // ============================================
 
-  // TODO: Registrar rutas aquí
-  // app.use(`/api/${config.apiVersion}/auth`, authRoutes);
-  // app.use(`/api/${config.apiVersion}/products`, productRoutes);
-  // etc...
-
+  // Ruta base de la API
   app.get(`/api/${config.apiVersion}`, (_req, res) => {
     res.json({
       message: 'DaviStore API',
       version: config.apiVersion,
       documentation: '/api/docs',
+      endpoints: {
+        auth: `/api/${config.apiVersion}/auth`,
+        users: `/api/${config.apiVersion}/users`,
+      },
     });
   });
+
+  // Rutas de autenticación
+  app.use(`/api/${config.apiVersion}/auth`, authRoutes);
+
+  // Rutas de usuarios
+  app.use(`/api/${config.apiVersion}/users`, userRoutes);
 
   // ============================================
   // Error handling

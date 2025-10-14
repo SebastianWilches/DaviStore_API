@@ -41,11 +41,31 @@ export class AuthenticationError extends AppError {
 }
 
 /**
+ * Alias para error de autenticación (401)
+ * Más descriptivo para tokens JWT
+ */
+export class UnauthorizedError extends AppError {
+  constructor(message: string = 'Unauthorized') {
+    super(message, 401, 'UNAUTHORIZED');
+  }
+}
+
+/**
  * Error de autorización (403)
  */
 export class AuthorizationError extends AppError {
   constructor(message: string = 'Insufficient permissions') {
     super(message, 403, 'AUTHORIZATION_ERROR');
+  }
+}
+
+/**
+ * Alias para error de autorización (403)
+ * Más descriptivo para permisos de recursos
+ */
+export class ForbiddenError extends AppError {
+  constructor(message: string = 'Forbidden') {
+    super(message, 403, 'FORBIDDEN');
   }
 }
 

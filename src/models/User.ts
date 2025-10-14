@@ -4,18 +4,7 @@
  * Define la estructura y tipos de datos para la entidad User
  */
 
-/**
- * Interface de Rol
- */
-export interface Role {
-  id: string;
-  name: string;
-  display_name: string;
-  description: string | null;
-  is_active: boolean;
-  created_at: Date;
-  updated_at: Date;
-}
+import { Role } from './Role';
 
 /**
  * Interface base de Usuario (campos de BD)
@@ -71,10 +60,12 @@ export interface CreateUserDto {
  * Datos para actualizar un usuario
  */
 export interface UpdateUserDto {
+  email?: string;
   first_name?: string;
   last_name?: string;
   phone?: string;
   password?: string;
+  role_id?: string;
 }
 
 /**
