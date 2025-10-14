@@ -400,7 +400,7 @@ INSERT INTO roles (name, display_name, description) VALUES
 INSERT INTO users (email, password_hash, first_name, last_name, role_id, is_active)
 SELECT 
     'admin@davistore.com',
-    '$2a$10$rZH3JhZ.MhQyKGZvqX4Fc.LLqj3XxWxH2k6PZK9B7p5ILJEpKHLuC', -- Hash de 'Admin123!'
+    '$2a$10$Q3uowowEqEpcUbEC4yfmsuS/yyNcoUGp9cIZ5s/ARGVt8i5Cat1Lq', -- Hash de 'Admin123!'
     'Admin',
     'DaviStore',
     id,
