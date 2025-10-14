@@ -66,9 +66,17 @@ export interface ApiResponse<T = unknown> {
     details?: unknown;
   };
   meta?: {
+    message?: string;
     page?: number;
     limit?: number;
     total?: number;
+    totalPages?: number;
+    pagination?: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
   };
 }
 
