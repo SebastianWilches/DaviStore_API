@@ -338,11 +338,11 @@ export class OrderService {
       // Actualizar orden
       const updateQuery = `
         UPDATE orders
-        SET status = $1, notes = $2, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $3
+        SET status = $1, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2
       `;
 
-      await client.query(updateQuery, [data.status, data.notes || null, orderId]);
+      await client.query(updateQuery, [data.status, orderId]);
 
       // Si se aprueba, actualizar estado del pago
       if (data.status === OrderStatus.COMPLETED) {

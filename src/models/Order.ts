@@ -82,7 +82,6 @@ export interface ShippingAddress {
 export interface CreateOrderDto {
   shipping_address: ShippingAddress;
   payment_method: string;
-  notes?: string;
 }
 
 /**
@@ -90,6 +89,5 @@ export interface CreateOrderDto {
  */
 export interface UpdateOrderStatusDto {
   status: OrderStatus;
-  notes?: string;
 }
 
