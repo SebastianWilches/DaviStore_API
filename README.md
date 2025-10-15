@@ -404,107 +404,107 @@ erDiagram
 
     roles {
         uuid id PK
-        varchar name UK
-        varchar display_name
-        text description
+        string name UK
+        string display_name
+        string description
         boolean is_active
-        timestamp created_at
-        timestamp updated_at
+        datetime created_at
+        datetime updated_at
     }
 
     users {
         uuid id PK
-        varchar email UK
-        varchar password_hash
-        varchar first_name
-        varchar last_name
-        varchar phone
+        string email UK
+        string password_hash
+        string first_name
+        string last_name
+        string phone
         uuid role_id FK
         boolean is_active
-        timestamp created_at
-        timestamp updated_at
+        datetime created_at
+        datetime updated_at
     }
 
     categories {
         uuid id PK
-        varchar name UK
-        text description
-        varchar slug UK
+        string name UK
+        string description
+        string slug UK
         uuid parent_id FK
         boolean is_active
-        timestamp created_at
-        timestamp updated_at
+        datetime created_at
+        datetime updated_at
     }
 
     products {
         uuid id PK
-        varchar sku UK
-        varchar name
-        text description
+        string sku UK
+        string name
+        string description
         decimal price
-        integer stock_quantity
+        int stock_quantity
         uuid category_id FK
-        varchar image_url
+        string image_url
         boolean is_active
-        timestamp created_at
-        timestamp updated_at
+        datetime created_at
+        datetime updated_at
     }
 
     carts {
         uuid id PK
-        uuid user_id FK_UK
-        cart_status status
-        timestamp created_at
-        timestamp updated_at
+        uuid user_id FK
+        string status
+        datetime created_at
+        datetime updated_at
     }
 
     cart_items {
         uuid id PK
         uuid cart_id FK
         uuid product_id FK
-        integer quantity
+        int quantity
         decimal price_at_addition
-        timestamp created_at
-        timestamp updated_at
+        datetime created_at
+        datetime updated_at
     }
 
     orders {
         uuid id PK
-        varchar order_number UK
+        string order_number UK
         uuid user_id FK
         decimal total_amount
-        order_status status
-        text shipping_address
-        varchar shipping_city
-        varchar shipping_postal_code
-        varchar shipping_country
-        timestamp created_at
-        timestamp updated_at
+        string status
+        string shipping_address
+        string shipping_city
+        string shipping_postal_code
+        string shipping_country
+        datetime created_at
+        datetime updated_at
     }
 
     order_items {
         uuid id PK
         uuid order_id FK
         uuid product_id FK
-        varchar product_name
-        varchar product_sku
-        integer quantity
+        string product_name
+        string product_sku
+        int quantity
         decimal unit_price
         decimal subtotal
-        timestamp created_at
-        timestamp updated_at
+        datetime created_at
+        datetime updated_at
     }
 
     payments {
         uuid id PK
-        uuid order_id FK_UK
-        payment_method payment_method
+        uuid order_id FK
+        string payment_method
         decimal amount
-        payment_status status
-        varchar transaction_id UK
-        timestamp payment_date
-        timestamp created_at
-        timestamp updated_at
+        string status
+        string transaction_id UK
+        datetime payment_date
+        datetime created_at
+        datetime updated_at
     }
 ```
 
