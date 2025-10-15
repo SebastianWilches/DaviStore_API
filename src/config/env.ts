@@ -104,7 +104,7 @@ const envConfig: EnvConfig = {
 
   // CORS Configuration
   allowedOrigins: parseArray(
-    getEnv('ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:5173')
+    getEnv('ALLOWED_ORIGINS', 'http://localhost:3000,http://localhost:4200,http://localhost:5173')
   ),
 
   // Rate Limiting Configuration
