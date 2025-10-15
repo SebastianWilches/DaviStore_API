@@ -68,31 +68,32 @@ export class OrderService {
       const shipping_cost = subtotal >= 500 ? 0 : 50; // Envío gratis sobre $500
       const total = subtotal + tax + shipping_cost;
 
+      // Generar número de orden único
+      const orderNumberResult = await client.query('SELECT generate_order_number() AS order_number');
+      const orderNumber = orderNumberResult.rows[0].order_number;
+
       // Crear orden
       const orderQuery = `
         INSERT INTO orders (
-          user_id, status, subtotal, tax, shipping_cost, total,
-          shipping_address, shipping_city, shipping_state, 
-          shipping_zip, shipping_country, notes
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        RETURNING id, user_id, status, subtotal, tax, shipping_cost, total,
-                  shipping_address, shipping_city, shipping_state, shipping_zip,
-                  shipping_country, notes, created_at, updated_at
+          order_number, user_id, status, total_amount,
+          shipping_address, shipping_city, shipping_postal_code, shipping_country
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id, order_number, user_id, status, total_amount,
+                  shipping_address, shipping_city, shipping_postal_code,
+                  shipping_country, created_at, updated_at
       `;
 
+      const fullAddress = `${data.shipping_address.address}, ${data.shipping_address.state || ''}`;
+
       const orderValues = [
+        orderNumber,
         userId,
         OrderStatus.PENDING,
-        subtotal,
-        tax,
-        shipping_cost,
         total,
-        data.shipping_address.address,
+        fullAddress.trim(),
         data.shipping_address.city,
-        data.shipping_address.state,
         data.shipping_address.zip,
         data.shipping_address.country,
-        data.notes || null,
       ];
 
       const orderResult = await client.query(orderQuery, orderValues);
@@ -100,11 +101,19 @@ export class OrderService {
 
       // Crear items de la orden y reducir stock
       for (const item of cart.items) {
-        // Insertar order_item
+        // Insertar order_item con snapshots de producto
         await client.query(
-          `INSERT INTO order_items (order_id, product_id, quantity, unit_price, subtotal)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [order.id, item.product_id, item.quantity, item.current_price, item.current_price * item.quantity]
+          `INSERT INTO order_items (order_id, product_id, product_name, product_sku, quantity, unit_price, subtotal)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [
+            order.id, 
+            item.product_id, 
+            item.product_name,
+            item.product_sku,
+            item.quantity, 
+            item.current_price, 
+            item.current_price * item.quantity
+          ]
         );
 
         // Reducir stock del producto
@@ -116,7 +125,7 @@ export class OrderService {
 
       // Crear pago pendiente
       await client.query(
-        `INSERT INTO payments (order_id, method, status, amount)
+        `INSERT INTO payments (order_id, payment_method, status, amount)
          VALUES ($1, $2, $3, $4)`,
         [order.id, data.payment_method, PaymentStatus.PENDING, total]
       );
@@ -142,9 +151,9 @@ export class OrderService {
   async getOrderById(orderId: string, userId?: string): Promise<OrderWithItems> {
     let query = `
       SELECT 
-        o.id, o.user_id, o.status, o.subtotal, o.tax, o.shipping_cost, o.total,
-        o.shipping_address, o.shipping_city, o.shipping_state, o.shipping_zip,
-        o.shipping_country, o.notes, o.created_at, o.updated_at
+        o.id, o.order_number, o.user_id, o.status, o.total_amount,
+        o.shipping_address, o.shipping_city, o.shipping_postal_code,
+        o.shipping_country, o.created_at, o.updated_at
       FROM orders o
       WHERE o.id = $1
     `;
@@ -168,11 +177,9 @@ export class OrderService {
     // Obtener items de la orden
     const itemsResult = await pool.query(
       `SELECT 
-        oi.id, oi.order_id, oi.product_id, oi.quantity, oi.unit_price, 
-        oi.subtotal, oi.created_at,
-        p.name as product_name, p.sku as product_sku, p.image_url as product_image_url
+        oi.id, oi.order_id, oi.product_id, oi.product_name, oi.product_sku,
+        oi.quantity, oi.unit_price, oi.subtotal, oi.created_at
       FROM order_items oi
-      INNER JOIN products p ON oi.product_id = p.id
       WHERE oi.order_id = $1
       ORDER BY oi.created_at DESC`,
       [orderId]
@@ -180,14 +187,14 @@ export class OrderService {
 
     // Obtener información del pago
     const paymentResult = await pool.query(
-      'SELECT id, method, status, transaction_id FROM payments WHERE order_id = $1',
+      'SELECT id, payment_method, status, transaction_id FROM payments WHERE order_id = $1',
       [orderId]
     );
 
     const payment = paymentResult.rows.length > 0
       ? {
           id: paymentResult.rows[0].id,
-          method: paymentResult.rows[0].method,
+          method: paymentResult.rows[0].payment_method,
           status: paymentResult.rows[0].status,
           transaction_id: paymentResult.rows[0].transaction_id,
         }
@@ -195,31 +202,26 @@ export class OrderService {
 
     return {
       id: order.id,
+      order_number: order.order_number,
       user_id: order.user_id,
       status: order.status,
-      subtotal: parseFloat(order.subtotal),
-      tax: parseFloat(order.tax),
-      shipping_cost: parseFloat(order.shipping_cost),
-      total: parseFloat(order.total),
+      total_amount: parseFloat(order.total_amount),
       shipping_address: order.shipping_address,
       shipping_city: order.shipping_city,
-      shipping_state: order.shipping_state,
-      shipping_zip: order.shipping_zip,
+      shipping_postal_code: order.shipping_postal_code,
       shipping_country: order.shipping_country,
-      notes: order.notes,
       created_at: order.created_at,
       updated_at: order.updated_at,
       items: itemsResult.rows.map((row) => ({
         id: row.id,
         order_id: row.order_id,
         product_id: row.product_id,
+        product_name: row.product_name,
+        product_sku: row.product_sku,
         quantity: row.quantity,
         unit_price: parseFloat(row.unit_price),
         subtotal: parseFloat(row.subtotal),
         created_at: row.created_at,
-        product_name: row.product_name,
-        product_sku: row.product_sku,
-        product_image_url: row.product_image_url,
       })),
       payment,
     };
@@ -264,9 +266,9 @@ export class OrderService {
     // Query para obtener datos
     const dataQuery = `
       SELECT 
-        o.id, o.user_id, o.status, o.subtotal, o.tax, o.shipping_cost, o.total,
-        o.shipping_address, o.shipping_city, o.shipping_state, o.shipping_zip,
-        o.shipping_country, o.notes, o.created_at, o.updated_at
+        o.id, o.order_number, o.user_id, o.status, o.total_amount,
+        o.shipping_address, o.shipping_city, o.shipping_postal_code,
+        o.shipping_country, o.created_at, o.updated_at
       FROM orders o
       ${whereClause}
       ORDER BY o.created_at DESC
@@ -336,11 +338,11 @@ export class OrderService {
       // Actualizar orden
       const updateQuery = `
         UPDATE orders
-        SET status = $1, notes = $2, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $3
+        SET status = $1, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2
       `;
 
-      await client.query(updateQuery, [data.status, data.notes || null, orderId]);
+      await client.query(updateQuery, [data.status, orderId]);
 
       // Si se aprueba, actualizar estado del pago
       if (data.status === OrderStatus.COMPLETED) {

@@ -11,18 +11,14 @@ import { OrderStatus } from '../types';
  */
 export interface Order {
   id: string;
+  order_number: string;
   user_id: string;
   status: OrderStatus;
-  subtotal: number;
-  tax: number;
-  shipping_cost: number;
-  total: number;
+  total_amount: number;
   shipping_address: string;
   shipping_city: string;
-  shipping_state: string;
-  shipping_zip: string;
+  shipping_postal_code: string;
   shipping_country: string;
-  notes: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -34,6 +30,8 @@ export interface OrderItem {
   id: string;
   order_id: string;
   product_id: string;
+  product_name: string;
+  product_sku: string;
   quantity: number;
   unit_price: number;
   subtotal: number;
@@ -41,13 +39,9 @@ export interface OrderItem {
 }
 
 /**
- * Item de orden con información del producto
+ * Item de orden con información del producto (alias para compatibilidad)
  */
-export interface OrderItemWithProduct extends OrderItem {
-  product_name: string;
-  product_sku: string;
-  product_image_url: string | null;
-}
+export interface OrderItemWithProduct extends OrderItem {}
 
 /**
  * Orden con sus items
@@ -88,7 +82,6 @@ export interface ShippingAddress {
 export interface CreateOrderDto {
   shipping_address: ShippingAddress;
   payment_method: string;
-  notes?: string;
 }
 
 /**
@@ -96,6 +89,5 @@ export interface CreateOrderDto {
  */
 export interface UpdateOrderStatusDto {
   status: OrderStatus;
-  notes?: string;
 }
 

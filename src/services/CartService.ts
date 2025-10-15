@@ -38,15 +38,40 @@ export class CartService {
       let cart: Cart;
 
       if (cartResult.rows.length === 0) {
-        // Crear nuevo carrito
-        const createResult = await client.query(
-          `INSERT INTO carts (user_id, status) 
-           VALUES ($1, $2)
-           RETURNING id, user_id, status, created_at, updated_at`,
-          [userId, CartStatus.ACTIVE]
+        // Buscar si existe un carrito completed o abandoned para reutilizarlo
+        const existingCartResult = await client.query(
+          'SELECT id, user_id, status, created_at, updated_at FROM carts WHERE user_id = $1',
+          [userId]
         );
 
-        cart = createResult.rows[0];
+        if (existingCartResult.rows.length > 0) {
+          // Reutilizar carrito existente: eliminar items antiguos y marcar como activo
+          const existingCart = existingCartResult.rows[0];
+          
+          // Eliminar items antiguos
+          await client.query('DELETE FROM cart_items WHERE cart_id = $1', [existingCart.id]);
+          
+          // Actualizar estado a activo
+          const updateResult = await client.query(
+            `UPDATE carts 
+             SET status = $1, updated_at = CURRENT_TIMESTAMP 
+             WHERE id = $2
+             RETURNING id, user_id, status, created_at, updated_at`,
+            [CartStatus.ACTIVE, existingCart.id]
+          );
+          
+          cart = updateResult.rows[0];
+        } else {
+          // Crear nuevo carrito
+          const createResult = await client.query(
+            `INSERT INTO carts (user_id, status) 
+             VALUES ($1, $2)
+             RETURNING id, user_id, status, created_at, updated_at`,
+            [userId, CartStatus.ACTIVE]
+          );
+
+          cart = createResult.rows[0];
+        }
       } else {
         cart = cartResult.rows[0];
       }

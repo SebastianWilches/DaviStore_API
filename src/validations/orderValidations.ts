@@ -59,12 +59,6 @@ export const createOrderValidation = [
     .withMessage('El método de pago es requerido')
     .isIn(Object.values(PaymentMethod))
     .withMessage('El método de pago no es válido'),
-
-  body('notes')
-    .optional()
-    .trim()
-    .isLength({ max: 500 })
-    .withMessage('Las notas no pueden tener más de 500 caracteres'),
 ];
 
 /**
@@ -80,12 +74,6 @@ export const updateOrderStatusValidation = [
     .withMessage('El estado es requerido')
     .isIn(Object.values(OrderStatus))
     .withMessage('El estado no es válido'),
-
-  body('notes')
-    .optional()
-    .trim()
-    .isLength({ max: 500 })
-    .withMessage('Las notas no pueden tener más de 500 caracteres'),
 ];
 
 /**
