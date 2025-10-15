@@ -1,0 +1,37 @@
+services:
+  # Backend API
+  - type: web
+    name: davistore-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: node dist/server.js
+    healthCheckPath: /api/v1/categories
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: davistore-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+databases:
+  # PostgreSQL Database
+  - name: davistore-db
+    databaseName: davistore
+    plan: free
+    region: oregon
+
