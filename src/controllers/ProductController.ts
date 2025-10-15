@@ -32,7 +32,8 @@ export class ProductController {
       const search = req.query.search as string | undefined;
       const isActive =
         req.query.isActive === 'true' ? true : req.query.isActive === 'false' ? false : undefined;
-      const inStock = req.query.inStock === 'true';
+      const inStock =
+        req.query.inStock === 'true' ? true : req.query.inStock === 'false' ? false : undefined;
 
       const result = await productService.getProducts(
         { categoryId, minPrice, maxPrice, search, isActive, inStock },
