@@ -9,8 +9,9 @@
 
 import { createApp } from './app';
 import { config, validateConfig } from './config/env';
-import { testConnection, closePool } from './config/database';
+import { testConnection, closePool, pool } from './config/database';
 import { logger } from './utils/logger';
+import { runMigrations } from './utils/runMigrations';
 
 /**
  * Inicializar y arrancar el servidor
@@ -29,11 +30,14 @@ const startServer = async (): Promise<void> => {
       throw new Error('Failed to connect to database');
     }
 
-    // 3. Crear aplicación Express
+    // 3. Ejecutar migraciones automáticamente
+    await runMigrations(pool);
+
+    // 4. Crear aplicación Express
     logger.info('🚀 Creating Express application...');
     const app = createApp();
 
-    // 4. Iniciar servidor
+    // 5. Iniciar servidor
     const server = app.listen(config.port, () => {
       logger.info(`✅ Server started successfully`);
       logger.info(`📍 Environment: ${config.nodeEnv}`);
