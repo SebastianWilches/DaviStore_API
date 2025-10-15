@@ -439,7 +439,7 @@ INSERT INTO products (sku, name, description, price, stock_quantity, category_id
 SELECT 
     'ELEC-001',
     'Smartphone Galaxy X10',
-    'Smartphone de última generación con pantalla AMOLED de 6.5 pulgadas y cámara de 108MP',
+    'Smartphone de ultima generacion con pantalla AMOLED de 6.5 pulgadas y camara de 108MP',
     799.99,
     50,
     id,
