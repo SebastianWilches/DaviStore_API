@@ -99,8 +99,12 @@ export class ProductService {
     }
 
     // Filtro por stock disponible
-    if (filters.inStock) {
-      whereConditions.push('p.stock_quantity > 0');
+    if (filters.inStock !== undefined) {
+      if (filters.inStock) {
+        whereConditions.push('p.stock_quantity > 0');
+      } else {
+        whereConditions.push('p.stock_quantity = 0');
+      }
     }
 
     const whereClause =
