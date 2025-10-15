@@ -1004,13 +1004,8 @@ Las contribuciones son bienvenidas. Por favor sigue estos pasos:
 - Documentar funciones complejas
 - Usar commits semánticos
 
----
 
-## 📄 Licencia
 
-Este proyecto es privado y está protegido por derechos de autor.
-
----
 
 ## 👨‍💻 Autor
 
@@ -1022,22 +1017,6 @@ Este proyecto es privado y está protegido por derechos de autor.
 
 ---
 
-## 🙏 Agradecimientos
-
-- **Node.js Community**: Por el excelente ecosistema
-- **PostgreSQL Team**: Por la robusta base de datos
-- **TypeScript Team**: Por la seguridad de tipos
-
----
-
-## 📚 Recursos Adicionales
-
-- [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Express Security Best Practices](https://expressjs.com/en/advanced/best-practice-security.html)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
-
----
 
 <div align="center">
 
