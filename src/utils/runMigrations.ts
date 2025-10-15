@@ -31,7 +31,16 @@ export async function runMigrations(pool: Pool): Promise<void> {
 
     // Ejecutar migración 001
     logger.info('  → Running 001_initial_schema.sql...');
-    const migration1Path = join(__dirname, '..', 'database', 'migrations', '001_initial_schema.sql');
+    
+    // Buscar en dos posibles ubicaciones (desarrollo vs producción)
+    let migration1Path = join(__dirname, '..', 'database', 'migrations', '001_initial_schema.sql');
+    const { existsSync } = require('fs');
+    
+    if (!existsSync(migration1Path)) {
+      // Intentar ruta alternativa para Render
+      migration1Path = join(process.cwd(), 'dist', 'database', 'migrations', '001_initial_schema.sql');
+    }
+    
     logger.info(`  → Migration path: ${migration1Path}`);
     const migration1 = readFileSync(migration1Path, 'utf8');
     await pool.query(migration1);
@@ -39,7 +48,12 @@ export async function runMigrations(pool: Pool): Promise<void> {
 
     // Ejecutar migración 002
     logger.info('  → Running 002_add_order_statuses.sql...');
-    const migration2Path = join(__dirname, '..', 'database', 'migrations', '002_add_order_statuses.sql');
+    let migration2Path = join(__dirname, '..', 'database', 'migrations', '002_add_order_statuses.sql');
+    
+    if (!existsSync(migration2Path)) {
+      migration2Path = join(process.cwd(), 'dist', 'database', 'migrations', '002_add_order_statuses.sql');
+    }
+    
     logger.info(`  → Migration path: ${migration2Path}`);
     const migration2 = readFileSync(migration2Path, 'utf8');
     await pool.query(migration2);
