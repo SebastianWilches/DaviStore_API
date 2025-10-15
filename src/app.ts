@@ -16,6 +16,10 @@ import { config } from './config/env';
 import { errorHandler, notFoundHandler } from './middlewares';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
+import categoryRoutes from './routes/categoryRoutes';
+import productRoutes from './routes/productRoutes';
+import cartRoutes from './routes/cartRoutes';
+import orderRoutes from './routes/orderRoutes';
 
 /**
  * Crear y configurar aplicación Express
@@ -83,6 +87,10 @@ export const createApp = (): Application => {
       endpoints: {
         auth: `/api/${config.apiVersion}/auth`,
         users: `/api/${config.apiVersion}/users`,
+        categories: `/api/${config.apiVersion}/categories`,
+        products: `/api/${config.apiVersion}/products`,
+        cart: `/api/${config.apiVersion}/cart`,
+        orders: `/api/${config.apiVersion}/orders`,
       },
     });
   });
@@ -92,6 +100,18 @@ export const createApp = (): Application => {
 
   // Rutas de usuarios
   app.use(`/api/${config.apiVersion}/users`, userRoutes);
+
+  // Rutas de categorías
+  app.use(`/api/${config.apiVersion}/categories`, categoryRoutes);
+
+  // Rutas de productos
+  app.use(`/api/${config.apiVersion}/products`, productRoutes);
+
+  // Rutas de carrito
+  app.use(`/api/${config.apiVersion}/cart`, cartRoutes);
+
+  // Rutas de órdenes
+  app.use(`/api/${config.apiVersion}/orders`, orderRoutes);
 
   // ============================================
   // Error handling

@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "DaviStore API",
-    "description": "Colección completa de endpoints para DaviStore API - Sistema de autenticación y gestión de usuarios",
+    "name": "DaviStore API - E-Commerce Completo",
+    "description": "Colección completa de endpoints para DaviStore API - Sistema E-Commerce con autenticación, usuarios, categorías, productos, carrito y órdenes",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "davistore"
   },
@@ -35,6 +35,26 @@
       "key": "user_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "category_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "product_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cart_item_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -54,7 +74,22 @@
       }
     },
     {
-      "name": "Autenticación",
+      "name": "API Info",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}",
+          "host": ["{{base_url}}"]
+        },
+        "description": "Obtiene información de la API y lista de endpoints disponibles"
+      }
+    },
+    {
+      "name": "🔐 Autenticación",
       "item": [
         {
           "name": "1. Registrar Usuario",
@@ -94,8 +129,7 @@
               "raw": "{{base_url}}/auth/register",
               "host": ["{{base_url}}"],
               "path": ["auth", "register"]
-            },
-            "description": "Registra un nuevo usuario en el sistema. Automáticamente guarda los tokens y el ID del usuario."
+            }
           }
         },
         {
@@ -136,8 +170,7 @@
               "raw": "{{base_url}}/auth/login",
               "host": ["{{base_url}}"],
               "path": ["auth", "login"]
-            },
-            "description": "Inicia sesión con email y contraseña. Automáticamente guarda los tokens."
+            }
           }
         },
         {
@@ -178,8 +211,7 @@
               "raw": "{{base_url}}/auth/login",
               "host": ["{{base_url}}"],
               "path": ["auth", "login"]
-            },
-            "description": "Inicia sesión como administrador (usuario por defecto de la BD)"
+            }
           }
         },
         {
@@ -191,8 +223,7 @@
               "raw": "{{base_url}}/auth/me",
               "host": ["{{base_url}}"],
               "path": ["auth", "me"]
-            },
-            "description": "Obtiene información del usuario autenticado actual"
+            }
           }
         },
         {
@@ -232,8 +263,7 @@
               "raw": "{{base_url}}/auth/refresh",
               "host": ["{{base_url}}"],
               "path": ["auth", "refresh"]
-            },
-            "description": "Genera un nuevo access token usando el refresh token"
+            }
           }
         },
         {
@@ -245,14 +275,13 @@
               "raw": "{{base_url}}/auth/logout",
               "host": ["{{base_url}}"],
               "path": ["auth", "logout"]
-            },
-            "description": "Cierra la sesión del usuario (principalmente para documentación)"
+            }
           }
         }
       ]
     },
     {
-      "name": "Usuarios",
+      "name": "👥 Usuarios",
       "item": [
         {
           "name": "1. Listar Usuarios (Admin)",
@@ -281,15 +310,9 @@
                   "key": "isActive",
                   "value": "true",
                   "disabled": true
-                },
-                {
-                  "key": "roleId",
-                  "value": "",
-                  "disabled": true
                 }
               ]
-            },
-            "description": "Lista todos los usuarios con paginación. Solo administradores."
+            }
           }
         },
         {
@@ -301,8 +324,7 @@
               "raw": "{{base_url}}/users/{{user_id}}",
               "host": ["{{base_url}}"],
               "path": ["users", "{{user_id}}"]
-            },
-            "description": "Obtiene información de un usuario específico. Propietario o admin."
+            }
           }
         },
         {
@@ -323,100 +345,753 @@
               "raw": "{{base_url}}/users/{{user_id}}",
               "host": ["{{base_url}}"],
               "path": ["users", "{{user_id}}"]
-            },
-            "description": "Actualiza información de un usuario. Propietario o admin. Todos los campos son opcionales."
-          }
-        },
-        {
-          "name": "4. Actualizar Email",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"nuevo@ejemplo.com\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}"]
-            },
-            "description": "Actualiza el email de un usuario"
-          }
-        },
-        {
-          "name": "5. Cambiar Contraseña",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"password\": \"NewPassword123\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}"]
-            },
-            "description": "Cambia la contraseña de un usuario"
-          }
-        },
-        {
-          "name": "6. Activar Usuario (Admin)",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}/activate",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}", "activate"]
-            },
-            "description": "Activa un usuario desactivado. Solo administradores."
-          }
-        },
-        {
-          "name": "7. Desactivar Usuario (Admin)",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}/deactivate",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}", "deactivate"]
-            },
-            "description": "Desactiva un usuario activo. Solo administradores."
-          }
-        },
-        {
-          "name": "8. Eliminar Usuario (Admin)",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["users", "{{user_id}}"]
-            },
-            "description": "Elimina un usuario (soft delete). Solo administradores."
+            }
           }
         }
       ]
     },
     {
-      "name": "Ejemplos de Errores",
+      "name": "📁 Categorías",
       "item": [
         {
-          "name": "Error 400 - Validación",
+          "name": "1. Listar Categorías (Público)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": ["{{base_url}}"],
+              "path": ["categories"]
+            },
+            "description": "Obtener todas las categorías activas (no requiere autenticación)"
+          }
+        },
+        {
+          "name": "2. Árbol de Categorías (Público)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/tree",
+              "host": ["{{base_url}}"],
+              "path": ["categories", "tree"]
+            },
+            "description": "Obtener categorías organizadas en árbol jerárquico"
+          }
+        },
+        {
+          "name": "3. Obtener Categoría por ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["categories", "{{category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "4. Obtener Categoría por Slug",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/slug/electronica",
+              "host": ["{{base_url}}"],
+              "path": ["categories", "slug", "electronica"]
+            },
+            "description": "Buscar categoría por su slug (útil para URLs amigables)"
+          }
+        },
+        {
+          "name": "5. Crear Categoría (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('category_id', jsonData.data.category.id);",
+                  "    console.log('✅ Categoría creada, ID guardado');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Electrónica\",\n  \"slug\": \"electronica\",\n  \"description\": \"Productos electrónicos y tecnología\",\n  \"image_url\": \"https://example.com/images/electronica.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": ["{{base_url}}"],
+              "path": ["categories"]
+            }
+          }
+        },
+        {
+          "name": "6. Crear Subcategoría (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Laptops\",\n  \"slug\": \"laptops\",\n  \"description\": \"Computadoras portátiles\",\n  \"parent_id\": \"{{category_id}}\",\n  \"image_url\": \"https://example.com/images/laptops.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": ["{{base_url}}"],
+              "path": ["categories"]
+            },
+            "description": "Crear una subcategoría con parent_id"
+          }
+        },
+        {
+          "name": "7. Actualizar Categoría (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Electrónica y Tecnología\",\n  \"description\": \"Productos electrónicos, computadoras y accesorios\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["categories", "{{category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "8. Eliminar Categoría (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["categories", "{{category_id}}"]
+            },
+            "description": "Solo se puede eliminar si no tiene productos ni subcategorías"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛍️ Productos",
+      "item": [
+        {
+          "name": "1. Listar Productos (Público)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "{{category_id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "100",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "5000",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "laptop",
+                  "disabled": true
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "disabled": true
+                },
+                {
+                  "key": "inStock",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Listar productos con filtros opcionales"
+          }
+        },
+        {
+          "name": "2. Buscar Productos",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products?search=laptop&inStock=true&page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "laptop"
+                },
+                {
+                  "key": "inStock",
+                  "value": "true"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Buscar productos por nombre, descripción o SKU"
+          }
+        },
+        {
+          "name": "3. Filtrar por Categoría y Precio",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products?categoryId={{category_id}}&minPrice=500&maxPrice=2000",
+              "host": ["{{base_url}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "{{category_id}}"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "500"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "2000"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Obtener Producto por ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["products", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "5. Obtener Producto por SKU",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/sku/LAP-001",
+              "host": ["{{base_url}}"],
+              "path": ["products", "sku", "LAP-001"]
+            }
+          }
+        },
+        {
+          "name": "6. Crear Producto (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('product_id', jsonData.data.product.id);",
+                  "    console.log('✅ Producto creado, ID guardado');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"LAP-001\",\n  \"name\": \"Laptop Dell XPS 15\",\n  \"description\": \"Laptop de alto rendimiento con procesador Intel Core i7, 16GB RAM, 512GB SSD\",\n  \"price\": 1299.99,\n  \"stock_quantity\": 15,\n  \"category_id\": \"{{category_id}}\",\n  \"image_url\": \"https://example.com/images/dell-xps-15.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": ["{{base_url}}"],
+              "path": ["products"]
+            }
+          }
+        },
+        {
+          "name": "7. Actualizar Producto (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Laptop Dell XPS 15 - Edición 2024\",\n  \"price\": 1199.99,\n  \"description\": \"Laptop de alto rendimiento actualizada con mejoras de batería\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["products", "{{product_id}}"]
+            }
+          }
+        },
+        {
+          "name": "8. Actualizar Stock (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products/{{product_id}}/stock",
+              "host": ["{{base_url}}"],
+              "path": ["products", "{{product_id}}", "stock"]
+            },
+            "description": "Actualizar la cantidad en stock de un producto"
+          }
+        },
+        {
+          "name": "9. Eliminar Producto (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["products", "{{product_id}}"]
+            },
+            "description": "Solo se puede eliminar si no está en carritos activos ni órdenes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Carrito",
+      "item": [
+        {
+          "name": "1. Ver Mi Carrito",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cart",
+              "host": ["{{base_url}}"],
+              "path": ["cart"]
+            },
+            "description": "Obtener el carrito activo del usuario autenticado"
+          }
+        },
+        {
+          "name": "2. Resumen del Carrito",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cart/summary",
+              "host": ["{{base_url}}"],
+              "path": ["cart", "summary"]
+            },
+            "description": "Obtener resumen rápido: total items, subtotal, cantidad de productos"
+          }
+        },
+        {
+          "name": "3. Agregar Producto al Carrito",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data.cart.items.length > 0) {",
+                  "        pm.collectionVariables.set('cart_item_id', jsonData.data.cart.items[0].id);",
+                  "        console.log('✅ Producto agregado al carrito');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cart/items",
+              "host": ["{{base_url}}"],
+              "path": ["cart", "items"]
+            },
+            "description": "Agregar un producto al carrito (valida stock disponible)"
+          }
+        },
+        {
+          "name": "4. Agregar Otro Producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cart/items",
+              "host": ["{{base_url}}"],
+              "path": ["cart", "items"]
+            },
+            "description": "Si el producto ya está, suma la cantidad"
+          }
+        },
+        {
+          "name": "5. Actualizar Cantidad de Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cart/items/{{cart_item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["cart", "items", "{{cart_item_id}}"]
+            },
+            "description": "Cambiar la cantidad de un item específico"
+          }
+        },
+        {
+          "name": "6. Eliminar Item del Carrito",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cart/items/{{cart_item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["cart", "items", "{{cart_item_id}}"]
+            },
+            "description": "Eliminar un producto específico del carrito"
+          }
+        },
+        {
+          "name": "7. Vaciar Carrito",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cart",
+              "host": ["{{base_url}}"],
+              "path": ["cart"]
+            },
+            "description": "Eliminar todos los items del carrito"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Órdenes",
+      "item": [
+        {
+          "name": "1. Crear Orden (Checkout)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('order_id', jsonData.data.order.id);",
+                  "    console.log('✅ Orden creada, ID guardado');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipping_address\": {\n    \"address\": \"Calle Principal 123, Depto 4B\",\n    \"city\": \"Ciudad de México\",\n    \"state\": \"CDMX\",\n    \"zip\": \"01234\",\n    \"country\": \"México\"\n  },\n  \"payment_method\": \"credit_card\",\n  \"notes\": \"Por favor entregar en horario de oficina (9am-6pm)\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            },
+            "description": "Crear orden desde el carrito actual. Valida stock, calcula totales, reduce inventario"
+          }
+        },
+        {
+          "name": "2. Listar Mis Órdenes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Usuario normal ve solo sus órdenes, Admin ve todas"
+          }
+        },
+        {
+          "name": "3. Listar Todas las Órdenes (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "userId",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Admin puede filtrar por usuario y estado"
+          }
+        },
+        {
+          "name": "4. Filtrar Órdenes Pendientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders?status=pending",
+              "host": ["{{base_url}}"],
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Obtener Orden por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}"]
+            },
+            "description": "Ver detalles completos de una orden (items, totales, pago)"
+          }
+        },
+        {
+          "name": "6. Actualizar Estado a Processing (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"processing\",\n  \"notes\": \"Orden en proceso de preparación\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}", "status"]
+            },
+            "description": "Cambiar estado de la orden (solo Admin)"
+          }
+        },
+        {
+          "name": "7. Actualizar Estado a Completed (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\",\n  \"notes\": \"Orden entregada exitosamente\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}", "status"]
+            },
+            "description": "Marca la orden como completada y el pago como aprobado"
+          }
+        },
+        {
+          "name": "8. Cancelar Orden (Usuario)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "{{order_id}}", "cancel"]
+            },
+            "description": "Usuario cancela su orden (solo si está pending). Restaura stock automáticamente"
+          }
+        }
+      ]
+    },
+    {
+      "name": "❌ Ejemplos de Errores",
+      "item": [
+        {
+          "name": "Error 400 - Validación Email",
           "request": {
             "auth": {
               "type": "noauth"
@@ -436,19 +1111,18 @@
               "raw": "{{base_url}}/auth/register",
               "host": ["{{base_url}}"],
               "path": ["auth", "register"]
-            },
-            "description": "Ejemplo de error de validación (400)"
+            }
           }
         },
         {
-          "name": "Error 401 - No Autorizado",
+          "name": "Error 401 - Token Inválido",
           "request": {
             "auth": {
               "type": "bearer",
               "bearer": [
                 {
                   "key": "token",
-                  "value": "token_invalido",
+                  "value": "token_invalido_123",
                   "type": "string"
                 }
               ]
@@ -459,42 +1133,12 @@
               "raw": "{{base_url}}/auth/me",
               "host": ["{{base_url}}"],
               "path": ["auth", "me"]
-            },
-            "description": "Ejemplo de error de autenticación (401)"
+            }
           }
         },
         {
-          "name": "Error 403 - Prohibido",
+          "name": "Error 403 - Sin Permisos",
           "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/users",
-              "host": ["{{base_url}}"],
-              "path": ["users"]
-            },
-            "description": "Ejemplo de error de autorización (403) - usuario no admin intentando listar usuarios"
-          }
-        },
-        {
-          "name": "Error 404 - No Encontrado",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/users/00000000-0000-0000-0000-000000000000",
-              "host": ["{{base_url}}"],
-              "path": ["users", "00000000-0000-0000-0000-000000000000"]
-            },
-            "description": "Ejemplo de error de recurso no encontrado (404)"
-          }
-        },
-        {
-          "name": "Error 409 - Conflicto",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
             "method": "POST",
             "header": [
               {
@@ -504,18 +1148,75 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@davistore.com\",\n  \"password\": \"Password123\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\"\n}"
+              "raw": "{\n  \"name\": \"Test\",\n  \"slug\": \"test\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/auth/register",
+              "raw": "{{base_url}}/categories",
               "host": ["{{base_url}}"],
-              "path": ["auth", "register"]
+              "path": ["categories"]
             },
-            "description": "Ejemplo de error de conflicto (409) - email duplicado"
+            "description": "Usuario no admin intentando crear categoría"
+          }
+        },
+        {
+          "name": "Error 404 - Producto No Encontrado",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/00000000-0000-0000-0000-000000000000",
+              "host": ["{{base_url}}"],
+              "path": ["products", "00000000-0000-0000-0000-000000000000"]
+            }
+          }
+        },
+        {
+          "name": "Error 409 - SKU Duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"LAP-001\",\n  \"name\": \"Producto duplicado\",\n  \"description\": \"Intentando usar SKU existente\",\n  \"price\": 100,\n  \"stock_quantity\": 10,\n  \"category_id\": \"{{category_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": ["{{base_url}}"],
+              "path": ["products"]
+            }
+          }
+        },
+        {
+          "name": "Error 422 - Stock Insuficiente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"quantity\": 9999\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cart/items",
+              "host": ["{{base_url}}"],
+              "path": ["cart", "items"]
+            },
+            "description": "Intentar agregar más cantidad que el stock disponible"
           }
         }
       ]
     }
   ]
 }
-
