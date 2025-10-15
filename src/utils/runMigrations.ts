@@ -31,19 +31,17 @@ export async function runMigrations(pool: Pool): Promise<void> {
 
     // Ejecutar migración 001
     logger.info('  → Running 001_initial_schema.sql...');
-    const migration1 = readFileSync(
-      join(__dirname, '..', 'database', 'migrations', '001_initial_schema.sql'),
-      'utf8'
-    );
+    const migration1Path = join(__dirname, '..', 'database', 'migrations', '001_initial_schema.sql');
+    logger.info(`  → Migration path: ${migration1Path}`);
+    const migration1 = readFileSync(migration1Path, 'utf8');
     await pool.query(migration1);
     logger.info('  ✅ Migration 001 completed');
 
     // Ejecutar migración 002
     logger.info('  → Running 002_add_order_statuses.sql...');
-    const migration2 = readFileSync(
-      join(__dirname, '..', 'database', 'migrations', '002_add_order_statuses.sql'),
-      'utf8'
-    );
+    const migration2Path = join(__dirname, '..', 'database', 'migrations', '002_add_order_statuses.sql');
+    logger.info(`  → Migration path: ${migration2Path}`);
+    const migration2 = readFileSync(migration2Path, 'utf8');
     await pool.query(migration2);
     logger.info('  ✅ Migration 002 completed');
 
